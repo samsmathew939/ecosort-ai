@@ -32,7 +32,7 @@ Too much recyclable material ends up in landfill because people don't know *wher
 
 ```bash
 # Clone & run locally
-git clone https://github.com/samsm/ecosort-ai.git
+git clone https://github.com/samsmathew939/ecosort-ai.git
 cd ecosort-ai
 pip install -r requirements.txt
 streamlit run app.py

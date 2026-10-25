@@ -24,7 +24,7 @@
 ## Next Steps (Timeline)
 
 ### Week 1 — Ship MVP (Oct 24–30)
-- [ ] **Push to GitHub** — create repo `samsm/ecosort-ai`, commit all files
+- [ ] **Push to GitHub** — create repo `samsmathew939/ecosort-ai`, commit all files
 - [ ] **Deploy to Streamlit Cloud** — connect GitHub, get live URL
 - [ ] **Update README** with actual live demo URL
 - [ ] **Test on mobile** — verify camera works, UI responsive

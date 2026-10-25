@@ -28,7 +28,7 @@ git init
 git add .
 git commit -m "Initial commit: EcoSort AI"
 git branch -M main
-git remote add origin https://github.com/samsm/ecosort-ai.git
+git remote add origin https://github.com/samsmathew939/ecosort-ai.git
 git push -u origin main
 ```
 
@@ -36,7 +36,7 @@ git push -u origin main
 1. Go to [share.streamlit.io](https://share.streamlit.io)
 2. Sign in with GitHub
 3. Click "New app"
-4. Select repo: `samsm/ecosort-ai`
+4. Select repo: `samsmathew939/ecosort-ai`
 5. Select file: `app.py`
 6. Click "Deploy"
 7. Get live URL: `https://ecosort-ai.streamlit.app`

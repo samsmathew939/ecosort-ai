@@ -52,4 +52,4 @@ if camera_input:
 # Footer
 st.markdown("---")
 st.caption("Built by Sam Mathew | Stevens Institute Applicant")
-st.caption("[GitHub Repo](https://github.com/samsm/ecosort-ai) | [Live Demo](https://ecosort-ai.streamlit.app)")
+st.caption("[GitHub Repo](https://github.com/samsmathew939/ecosort-ai) | [Live Demo](https://ecosort-ai.streamlit.app)")
