@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Env / secrets
+.env
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model weights (large)
+*.pt
+*.onnx
