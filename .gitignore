@@ -20,6 +20,15 @@ env/
 .DS_Store
 Thumbs.db
 
-# Model weights (large)
+# Training artifacts / local working files
+train/trashnet/
+train/_extract/
+train/runs/
+train/dataset-resized.zip
+runs/
+RESUME_STATE.md
+
+# Model weights (large) — but ship the small trained classifier
 *.pt
 *.onnx
+!models/ecosort.pt

@@ -13,20 +13,20 @@ Too much recyclable material ends up in landfill because people don't know *wher
 ## Tech Stack
 
 - **Frontend:** Streamlit (Python web app)
-- **AI Model:** YOLOv8 on the TrashNet dataset (6 waste classes) — *in progress; current build uses a simulated classifier as a working demo*
-- **Location data:** Google Maps Places API for recycling centers *(planned)*
+- **AI Model:** YOLOv8 image classifier trained on the TrashNet dataset (6 classes: cardboard, glass, metal, paper, plastic, trash)
+- **Location data:** recycling-center lookup *(planned)*
 - **Hosting:** Streamlit Community Cloud (free)
 
 ## Status
 
-🚧 **MVP in active development.** The app scaffold runs end-to-end (camera → classification → disposal instruction → nearby centers). The classification is currently simulated while the YOLOv8 model is being integrated.
+✅ **Working MVP.** End-to-end: camera → real YOLOv8 inference → disposal instruction. The classifier is trained on TrashNet (6 classes). Validation accuracy: **{{TOP1}}% top-1**. Weights load from `models/ecosort.pt`.
 
 **Roadmap:**
-- [x] Working app scaffold (camera input, results UI, zip-code lookup)
-- [ ] Replace simulated classifier with YOLOv8 pre-trained model
-- [ ] Fine-tune on TrashNet for 6 waste classes
-- [ ] Live Google Maps recycling-center lookup
+- [x] Working app scaffold (camera input, results UI)
+- [x] Real YOLOv8 inference wired in
+- [x] Model trained on TrashNet and weights committed
 - [ ] Public deployment on Streamlit Cloud
+- [ ] Live recycling-center lookup
 
 ## Quick Start
 
@@ -38,11 +38,21 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## Train the model
+
+The trained weights (`models/ecosort.pt`, ~3 MB) are produced by the notebook in `train/EcoSort_TrainTrashNet.ipynb` (Colab, free T4 GPU, ~10 min). Set runtime to GPU, Run all, download `ecosort.pt`, and place it in `models/`. A CPU equivalent is in `train/train_local.py`.
+
+## Deploy (Streamlit Community Cloud, free)
+
+1. Push this repo to GitHub with `models/ecosort.pt` committed.
+2. Go to share.streamlit.io → New app → pick `samsmathew939/ecosort-ai`, main branch, `app.py`.
+3. Deploy. You get a public URL to demo.
+
 ## What's Next
 
-- Real YOLOv8 inference (replacing the demo classifier)
 - Mobile app expansion (React Native)
 - Multi-language support
+- Live recycling-center lookup
 
 ---
 
