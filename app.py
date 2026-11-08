@@ -30,15 +30,24 @@ def load_model():
 
 
 def classify(image):
-    """Run real inference. Returns (label, confidence) or raises."""
+    """Run real inference. Returns (label, confidence, top3) or raises."""
     model = load_model()
     if model is None:
         raise FileNotFoundError("model-missing")
     result = model(image, verbose=False)[0]
     label = result.names[result.probs.top1]
     confidence = float(result.probs.top1conf)
-    return label, confidence
+    top5 = result.probs.top5
+    top5conf = result.probs.top5conf.tolist()
+    top3 = [(result.names[i], c) for i, c in zip(top5, top5conf)][:3]
+    return label, confidence, top3
 
+
+st.info(
+    "📷 **For best results:** photograph the item against a plain, single-color "
+    "background (a table, wall, or floor) with nothing else in frame. Fill the "
+    "frame with the item. Clutter or busy backgrounds can confuse the AI."
+)
 
 camera_input = st.camera_input("📸 Take a photo of a waste item")
 
@@ -48,7 +57,7 @@ if camera_input:
 
     with st.spinner("🔍 Analyzing waste type..."):
         try:
-            predicted_type, confidence = classify(image)
+            predicted_type, confidence, top3 = classify(image)
         except FileNotFoundError:
             st.error(
                 "Model not loaded. Train it with the notebook in `train/` and "
@@ -63,14 +72,25 @@ if camera_input:
     st.success(f"✅ Detected: **{predicted_type.upper()}** ({confidence:.1%} confidence)")
     st.info(f"📍 {info['instruction']}")
 
-    st.markdown("### 🗺️ Nearby Recycling Centers")
-    st.write("Enter your zip code to find drop-off locations:")
-    zip_code = st.text_input("Zip code", placeholder="07030")
-    if zip_code:
-        st.caption(
-            "Live recycling-center lookup is on the roadmap. "
-            "For now, search Earth911 or your town's public-works site."
+    # Show alternatives — a single photo can misread (e.g. a can seen edge-on).
+    others = ", ".join(f"{name} {c:.0%}" for name, c in top3[1:])
+    if others:
+        st.caption(f"Other possibilities: {others}")
+    if confidence < 0.70:
+        st.warning(
+            "⚠️ Low confidence — try another angle or a plainer background. "
+            "Shiny or partly-visible items (like cans) can read as paper or plastic."
         )
+
+    st.markdown("### 🗺️ Nearby Recycling Centers")
+    zip_code = st.text_input("Enter your zip code to find drop-off locations:", placeholder="07030")
+    if zip_code.strip():
+        query = f"recycling+centers+near+{zip_code.strip()}"
+        st.link_button(
+            "🔎 Find recycling centers on Google Maps",
+            f"https://www.google.com/maps/search/{query}",
+        )
+        st.caption("Opens Google Maps with drop-off locations near your zip code.")
 
 # Footer
 st.markdown("---")
