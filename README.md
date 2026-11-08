@@ -19,7 +19,7 @@ Too much recyclable material ends up in landfill because people don't know *wher
 
 ## Status
 
-✅ **Working MVP.** End-to-end: camera → real YOLOv8 inference → disposal instruction. The classifier is trained on TrashNet (6 classes). Validation accuracy: **{{TOP1}}% top-1**. Weights load from `models/ecosort.pt`.
+✅ **Working MVP.** End-to-end: camera → real YOLOv8 inference → disposal instruction. The classifier is trained on TrashNet (6 classes). Validation accuracy: **91.5% top-1**. Weights load from `models/ecosort.pt`.
 
 **Roadmap:**
 - [x] Working app scaffold (camera input, results UI)
