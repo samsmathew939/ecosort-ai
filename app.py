@@ -1,4 +1,5 @@
 import json
+import re
 import urllib.request
 import streamlit as st
 from PIL import Image
@@ -42,6 +43,11 @@ PACKAGING_MAP = {
 }
 
 
+def _safe(text):
+    """Escape markdown so untrusted API/barcode text can't inject formatting or links."""
+    return re.sub(r"([\\`*_{}\[\]()#+\-.!|<>~])", r"\\\1", str(text))
+
+
 def read_barcode(image):
     """Read a UPC/EAN barcode from the image. Returns code string or None.
 
@@ -64,6 +70,8 @@ def lookup_product(barcode):
 
     Returns (product_name, waste_type) or None. Never raises.
     """
+    if not barcode or not barcode.isdigit():
+        return None
     try:
         url = f"https://world.openfoodfacts.org/api/v2/product/{barcode}.json"
         req = urllib.request.Request(url, headers={"User-Agent": "EcoSort/1.0"})
@@ -120,12 +128,12 @@ if camera_input:
     if product and product[1]:
         name, predicted_type = product
         info = WASTE_TYPES[predicted_type]
-        st.success(f"✅ Scanned: **{name}** → **{predicted_type.upper()}**")
+        st.success(f"✅ Scanned: **{_safe(name)}** → **{predicted_type.upper()}**")
         st.info(f"📍 {info['instruction']}")
-        st.caption(f"Identified from barcode {barcode} via Open Food Facts.")
+        st.caption(f"Identified from barcode {_safe(barcode)} via Open Food Facts.")
         handled = True
     elif product:
-        st.caption(f"📦 Found barcode for **{product[0]}**, but no packaging info — using AI instead.")
+        st.caption(f"📦 Found barcode for **{_safe(product[0])}**, but no packaging info — using AI instead.")
 
     # 2. Fall back to the AI vision classifier.
     if not handled:
