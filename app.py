@@ -43,6 +43,13 @@ PACKAGING_MAP = {
 }
 
 
+def load_image(src):
+    """Open an uploaded/captured image, bounding its size to avoid memory blowups."""
+    img = Image.open(src)
+    img.thumbnail((4000, 4000))  # downscale oversized uploads in place
+    return img.convert("RGB")
+
+
 def _safe(text):
     """Escape markdown so untrusted API/barcode text can't inject formatting or links."""
     return re.sub(r"([\\`*_{}\[\]()#+\-.!|<>~])", r"\\\1", str(text))
@@ -66,7 +73,9 @@ def read_barcode(image):
     try:
         gray = ImageOps.grayscale(image)
         w, h = gray.size
-        variants += [gray, gray.resize((w * 2, h * 2)), ImageOps.autocontrast(gray)]
+        variants += [gray, ImageOps.autocontrast(gray)]
+        if w * h <= 2_000_000:  # only upscale small images (avoids memory blowups)
+            variants.append(gray.resize((w * 2, h * 2)))
     except Exception:
         pass
 
@@ -148,7 +157,7 @@ with tab_ai:
     )
     cam = st.camera_input("📸 Take a photo of a waste item", key="ai_cam")
     if cam:
-        image = Image.open(cam).convert("RGB")
+        image = load_image(cam)
         with st.spinner("🔍 Analyzing with AI..."):
             try:
                 predicted_type, confidence, top3 = classify(image)
@@ -184,7 +193,7 @@ with tab_barcode:
                                key="bc_file")
     source = bc_cam or bc_file
     if source:
-        image = Image.open(source).convert("RGB")
+        image = load_image(source)
         with st.spinner("🔍 Reading barcode..."):
             barcode = read_barcode(image)
             product = lookup_product(barcode) if barcode else None
