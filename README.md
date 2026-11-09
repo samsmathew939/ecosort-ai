@@ -2,9 +2,11 @@
 
 **Real-time waste classification app — built to solve a real problem**
 
+🔗 **Live demo:** https://ecosort-ai-trash-sorter.streamlit.app/
+
 ## What It Does
 
-Point your phone camera at a waste item → the app classifies it → it tells you how and where to dispose of it correctly.
+Point your phone camera at a waste item → the app classifies it → it tells you how and where to dispose of it correctly. Packaged products can also be identified by **barcode** for a more accurate result.
 
 ## Why I Built It
 
@@ -14,19 +16,21 @@ Too much recyclable material ends up in landfill because people don't know *wher
 
 - **Frontend:** Streamlit (Python web app)
 - **AI Model:** YOLOv8 image classifier trained on the TrashNet dataset (6 classes: cardboard, glass, metal, paper, plastic, trash)
-- **Location data:** recycling-center lookup *(planned)*
+- **Barcode:** pyzbar + Open Food Facts API — identifies packaged products and their packaging material
+- **Location data:** zip-code recycling-center lookup via Google Maps
 - **Hosting:** Streamlit Community Cloud (free)
 
 ## Status
 
-✅ **Working MVP.** End-to-end: camera → real YOLOv8 inference → disposal instruction. The classifier is trained on TrashNet (6 classes). Validation accuracy: **91.5% top-1**. Weights load from `models/ecosort.pt`.
+✅ **Live and working.** End-to-end: camera → real YOLOv8 inference → disposal instruction, plus barcode scanning and a recycling-center lookup. The classifier is trained on TrashNet (6 classes). Validation accuracy: **91.5% top-1**.
 
 **Roadmap:**
 - [x] Working app scaffold (camera input, results UI)
 - [x] Real YOLOv8 inference wired in
 - [x] Model trained on TrashNet and weights committed
 - [x] Public deployment on Streamlit Cloud
-- [x] Live recycling-center lookup
+- [x] Barcode scanning for packaged products
+- [x] Recycling-center lookup (Google Maps)
 
 ## Quick Start
 
@@ -44,15 +48,13 @@ The trained weights (`models/ecosort.pt`, ~3 MB) are produced by the notebook in
 
 ## Deploy (Streamlit Community Cloud, free)
 
-1. Push this repo to GitHub with `models/ecosort.pt` committed.
-2. Go to share.streamlit.io → New app → pick `samsmathew939/ecosort-ai`, main branch, `app.py`.
-3. Deploy. You get a public URL to demo.
+Deployed from this repo at **https://ecosort-ai-trash-sorter.streamlit.app/**. To redeploy your own: share.streamlit.io → New app → `samsmathew939/ecosort-ai`, `main`, `app.py`.
 
 ## What's Next
 
 - Mobile app expansion (React Native)
 - Multi-language support
-- Live recycling-center lookup
+- Broader product coverage for barcode lookups
 
 ---
 
