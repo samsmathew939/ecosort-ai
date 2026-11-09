@@ -25,8 +25,8 @@ Too much recyclable material ends up in landfill because people don't know *wher
 - [x] Working app scaffold (camera input, results UI)
 - [x] Real YOLOv8 inference wired in
 - [x] Model trained on TrashNet and weights committed
-- [ ] Public deployment on Streamlit Cloud
-- [ ] Live recycling-center lookup
+- [x] Public deployment on Streamlit Cloud
+- [x] Live recycling-center lookup
 
 ## Quick Start
 
