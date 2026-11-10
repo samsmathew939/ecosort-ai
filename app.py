@@ -39,8 +39,16 @@ PACKAGING_MAP = {
     "glass": "glass",
     "plastic": "plastic", "pet": "plastic", "hdpe": "plastic", "bottle": "plastic",
     "cardboard": "cardboard", "carton": "cardboard", "box": "cardboard",
+    "jar": "glass",
     "paper": "paper",
 }
+
+# Generic, actionable guidance when we know it's packaged but not the material.
+GENERIC_PACKAGING_INSTRUCTION = (
+    "Empty and rinse the container. Recycle it if it's plastic, glass, or metal; "
+    "flatten any cardboard or cartons. Put soft plastic wrappers/film and any "
+    "food-soiled packaging in the regular trash."
+)
 
 
 def load_image(src):
@@ -109,7 +117,9 @@ def lookup_product(barcode):
         product = data["product"]
         name = product.get("product_name") or "Unknown product"
         terms = " ".join(str(product.get(k, "")) for k in
-                         ("packaging", "packaging_tags", "packaging_materials")).lower()
+                         ("packaging", "packaging_tags", "packaging_materials",
+                          "packaging_text", "categories", "categories_tags",
+                          "product_name")).lower()
         for keyword, waste in PACKAGING_MAP.items():
             if keyword in terms:
                 return name, waste
@@ -119,16 +129,26 @@ def lookup_product(barcode):
 
 
 def classify(image):
-    """Run real inference. Returns (label, confidence, top3) or raises."""
+    """Run real inference. Returns (label, confidence, top3) or raises.
+
+    Uses light test-time augmentation: we average the model's probabilities
+    over the original image and its mirror. A single crop/angle made the model
+    over-predict one class (often "paper"); averaging two views steadies it.
+    """
+    import numpy as np
+    from PIL import ImageOps
+
     model = load_model()
     if model is None:
         raise FileNotFoundError("model-missing")
-    result = model(image, verbose=False)[0]
-    label = result.names[result.probs.top1]
-    confidence = float(result.probs.top1conf)
-    top5 = result.probs.top5
-    top5conf = result.probs.top5conf.tolist()
-    top3 = [(result.names[i], c) for i, c in zip(top5, top5conf)][:3]
+    views = [image, ImageOps.mirror(image)]
+    results = model(views, verbose=False)
+    probs = np.mean([r.probs.data.cpu().numpy() for r in results], axis=0)
+    names = results[0].names
+    order = probs.argsort()[::-1]
+    label = names[int(order[0])]
+    confidence = float(probs[order[0]])
+    top3 = [(names[int(i)], float(probs[i])) for i in order[:3]]
     return label, confidence, top3
 
 
@@ -210,15 +230,22 @@ with tab_barcode:
             st.caption(f"Barcode {_safe(barcode)} · identified via Open Food Facts.")
             recycling_lookup("zip_bc")
         elif product:
-            st.warning(
-                f"📦 Read barcode **{_safe(barcode)}** (**{_safe(product[0])}**), but no "
-                "packaging info is on file. Use the 📷 Identify tab to classify it visually."
+            st.success(f"✅ Scanned: **{_safe(product[0])}**")
+            st.info(f"📍 {GENERIC_PACKAGING_INSTRUCTION}")
+            st.caption(
+                f"Barcode {_safe(barcode)} · found on Open Food Facts, but it has no "
+                "packaging material on file, so this is general guidance. For the exact "
+                "material, use the 📷 Identify tab or check the symbol on the package."
             )
+            recycling_lookup("zip_bc")
         else:
-            st.warning(
-                f"📦 Read barcode **{_safe(barcode)}**, but it isn't in the Open Food Facts "
-                "database. Use the 📷 Identify tab to classify it visually."
+            st.info(f"📍 {GENERIC_PACKAGING_INSTRUCTION}")
+            st.caption(
+                f"Barcode {_safe(barcode)} isn't in the Open Food Facts database, so this "
+                "is general packaging guidance. For the exact material, use the 📷 Identify "
+                "tab or check the recycling symbol on the package."
             )
+            recycling_lookup("zip_bc")
 
 # Footer
 st.markdown("---")
